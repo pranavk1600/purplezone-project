@@ -1,7 +1,15 @@
 const Statement = require('../models/Statement');
 const Submission = require('../models/Submission');
 
-const normalizeText = (text) => text.trim().toLowerCase().replace(/[\s]+/g, ' ');
+const normalizeAnswer = (text = '') =>
+  text
+    .trim()
+    .toLowerCase()
+.replace(/[^\w\s]/g, '')
+    .replace(/\s+/g, ' ');
+
+const compareAnswers = (userAnswer, correctAnswer) =>
+  normalizeAnswer(userAnswer) === normalizeAnswer(correctAnswer);
 
 const getStatements = async (req, res, next) => {
   try {
@@ -68,7 +76,8 @@ const saveSubmission = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'Statement not found' });
     }
 
-    const isCorrect = normalizeText(correctedAnswer) === normalizeText(statement.correctAnswer);
+    const normalizedAnswer = correctedAnswer.trim();
+    const isCorrect = compareAnswers(normalizedAnswer, statement.correctAnswer);
 
     const submission = await Submission.findOneAndUpdate(
       { user: req.user._id, statement: statementId },

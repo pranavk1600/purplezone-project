@@ -2,7 +2,15 @@ const Statement = require('../models/Statement');
 const Submission = require('../models/Submission');
 const Result = require('../models/Result');
 
-const normalizeText = (text) => text.trim().toLowerCase().replace(/[\s]+/g, ' ');
+const normalizeAnswer = (text = '') =>
+  text
+    .trim()
+    .toLowerCase()
+.replace(/[^\w\s]/g, '')
+    .replace(/\s+/g, ' ');
+
+const compareAnswers = (userAnswer, correctAnswer) =>
+  normalizeAnswer(userAnswer) === normalizeAnswer(correctAnswer);
 
 const submitResult = async (req, res, next) => {
   try {
@@ -17,7 +25,7 @@ const submitResult = async (req, res, next) => {
       const submission = submissions.find((item) => item.statement.equals(statement._id));
       const correctedAnswer = submission ? submission.correctedAnswer : '';
       const isCorrect = submission
-        ? normalizeText(correctedAnswer) === normalizeText(statement.correctAnswer)
+        ? compareAnswers(correctedAnswer, statement.correctAnswer)
         : false;
 
       return {
@@ -38,7 +46,7 @@ const submitResult = async (req, res, next) => {
       submissions.map(async (submission) => {
         const statement = statements.find((item) => item._id.equals(submission.statement));
         if (statement) {
-          submission.isCorrect = normalizeText(submission.correctedAnswer) === normalizeText(statement.correctAnswer);
+          submission.isCorrect = compareAnswers(submission.correctedAnswer, statement.correctAnswer);
           await submission.save();
         }
       })
