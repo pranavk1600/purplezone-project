@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 
 import bgImage from '../assets/sunset-5536777_1920.png';
-import logo from '../assets/Purplezonewt 1.png';
+import logo from '../assets/Purplezonewt.png';
 
 const Register = () => {
   const { register, loading } = useAuth();
